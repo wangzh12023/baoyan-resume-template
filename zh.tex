@@ -1,0 +1,339 @@
+\documentclass[10pt, letterpaper]{article}
+
+% Packages:
+\usepackage[
+    ignoreheadfoot, % set margins without considering header and footer
+    top=2 cm, % seperation between body and page edge from the top
+    bottom=2 cm, % seperation between body and page edge from the bottom
+    left=2 cm, % seperation between body and page edge from the left
+    right=2 cm, % seperation between body and page edge from the right
+    footskip=1.0 cm, % seperation between body and footer
+    % showframe % for debugging
+]{geometry} % for adjusting page geometry
+\usepackage[explicit]{titlesec} % for customizing section titles
+\usepackage{tabularx} % for making tables with fixed width columns
+\usepackage{array} % tabularx requires this
+\usepackage[dvipsnames]{xcolor} % for coloring text
+\definecolor{primaryColor}{RGB}{0, 79, 144} % define primary color
+\definecolor{accentColor}{RGB}{224, 82, 99}
+\definecolor{tealColor}{RGB}{0, 137, 123}
+\definecolor{purpleColor}{RGB}{112, 72, 166}
+\definecolor{goldColor}{RGB}{218, 146, 35}
+\definecolor{softGray}{RGB}{95, 105, 120}
+\usepackage{enumitem} % for customizing lists
+\usepackage{fontawesome5} % for using icons
+\usepackage{amsmath} % for math
+\usepackage[UTF8, scheme=plain]{ctex} % for Chinese support
+\usepackage[
+    pdftitle={[你的姓名]的简历},
+    pdfauthor={[你的姓名]},
+    pdfcreator={LaTeX with RenderCV},
+    colorlinks=true,
+    linkcolor=purpleColor,
+    urlcolor=accentColor
+]{hyperref} % for links, metadata and bookmarks
+\usepackage[pscoord]{eso-pic} % for floating text on the page
+\usepackage{calc} % for calculating lengths
+\usepackage{bookmark} % for bookmarks
+\usepackage{lastpage} % for getting the total number of pages
+\usepackage{changepage} % for one column entries (adjustwidth environment)
+\usepackage{paracol} % for two and three column entries
+\usepackage{ifthen} % for conditional statements
+\usepackage{needspace} % for avoiding page brake right after the section title
+\usepackage{iftex} % check if engine is pdflatex, xetex or luatex
+
+% Ensure that generate pdf is machine readable/ATS parsable:
+\ifPDFTeX
+    \input{glyphtounicode}
+    \pdfgentounicode=1
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+    \usepackage{lmodern}
+\fi
+
+\usepackage[default, type1]{sourcesanspro}
+
+% Some settings:
+\AtBeginEnvironment{adjustwidth}{\partopsep0pt} % remove space before adjustwidth environment
+\pagestyle{empty} % no header or footer
+\setcounter{secnumdepth}{0} % no section numbering
+\setlength{\parindent}{0pt} % no indentation
+\setlength{\topskip}{0pt} % no top skip
+\setlength{\columnsep}{0.15cm} % set column seperation
+\makeatletter
+\let\ps@customFooterStyle\ps@plain % Copy the plain style to customFooterStyle
+\patchcmd{\ps@customFooterStyle}{\thepage}{
+    \color{softGray}\textit{\small [你的姓名] - 第 \textcolor{accentColor}{\thepage{}} 页，共 \pageref*{LastPage} 页}
+}{}{} % replace number by desired string
+\makeatother
+\pagestyle{customFooterStyle}
+
+\titleformat{\section}{
+    % avoid page braking right after the section title
+    \needspace{4\baselineskip}
+    % make the font size of the section title large and color it with the primary color
+    \Large\color{primaryColor}
+}{}{}{
+    % print bold title, give 0.15 cm space and draw a line of 0.8 pt thickness
+    % from the end of the title to the end of the body
+    \textcolor{primaryColor}{\textbf{#1}}\hspace{0.15cm}{\color{accentColor}\titlerule[0.8pt]}\hspace{-0.1cm}
+}[] % section title formatting
+
+\titlespacing{\section}{
+    % left space:
+    -1pt
+}{
+    % top space:
+    0.3 cm
+}{
+    % bottom space:
+    0.2 cm
+} % section title spacing
+
+\renewcommand\labelitemi{\textcolor{tealColor}{\footnotesize\faAngleRight}} % custom bullet points
+\renewcommand\labelitemii{\textcolor{goldColor}{\scriptsize\faCircle}} % custom nested bullet points
+\newenvironment{highlights}{
+    \begin{itemize}[
+        topsep=0.10 cm,
+        parsep=0.10 cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=0.4 cm + 10pt
+    ]
+}{\end{itemize}} % new environment for highlights
+
+\newenvironment{highlightsforbulletentries}{
+    \begin{itemize}[
+        topsep=0.10 cm,
+        parsep=0.10 cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=10pt
+    ]
+}{\end{itemize}} % new environment for highlights for bullet entries
+
+
+\newenvironment{onecolentry}{
+    \begin{adjustwidth}{
+        0.2 cm + 0.00001 cm
+    }{
+        0.2 cm + 0.00001 cm
+    }
+}{\end{adjustwidth}} % new environment for one column entries
+
+\newenvironment{twocolentry}[2][]{\onecolentry
+    \def\secondColumn{#2}
+    \setcolumnwidth{\fill, 4.5 cm}
+    \begin{paracol}{2}
+}{\switchcolumn \raggedleft \secondColumn
+    \end{paracol}
+    \endonecolentry} % new environment for two column entries
+
+\newenvironment{threecolentry}[3][]{\onecolentry
+    \def\thirdColumn{#3}
+    \setcolumnwidth{1.2 cm, \fill, 4.5 cm}
+    \begin{paracol}{3}
+    {\raggedright #2} \switchcolumn
+}{\switchcolumn \raggedleft \thirdColumn
+    \end{paracol}
+    \endonecolentry} % new environment for three column entries
+
+\newenvironment{header}{
+    \setlength{\topsep}{0pt}\par\kern\topsep\centering\color{primaryColor}\linespread{1.5}
+}{\par\kern\topsep} % new environment for the header
+
+\newcommand{\placelastupdatedtext}{% \placetextbox{<horizontal pos>}{<vertical pos>}{<stuff>}
+  \AddToShipoutPictureFG*{% Add <stuff> to current page foreground
+    \put(
+        \LenToUnit{\paperwidth-2 cm-0.2 cm+0.05cm},
+        \LenToUnit{\paperheight-1.0 cm}
+    ){\vtop{{\null}\makebox[0pt][c]{
+        \small\color{gray}\textit{最后更新于 2026 年 4 月}\hspace{\widthof{最后更新于 2026 年 4 月}}
+    }}}%
+  }%
+}%
+
+% save the original href command in a new command:
+\let\hrefWithoutArrow\href
+
+% new command for external links:
+\renewcommand{\href}[2]{\hrefWithoutArrow{#1}{\ifthenelse{\equal{#2}{}}{ }{#2 }\raisebox{.15ex}{\footnotesize \faExternalLink*}}}
+
+
+\pagecolor{white}
+\begin{document}
+    \newcommand{\AND}{\unskip
+        \cleaders\copy\ANDbox\hskip\wd\ANDbox
+        \ignorespaces
+    }
+    \newsavebox\ANDbox
+    \sbox\ANDbox{}
+
+    \placelastupdatedtext
+    \begin{header}
+        \fontsize{30 pt}{30 pt}
+        \textbf{[你的姓名]}
+
+        \vspace{0.3 cm}
+
+        \normalsize
+        \mbox{\textcolor{accentColor}{\footnotesize\faMapMarker*}\hspace*{0.13cm}[你的城市]}%
+        \kern 0.25 cm%
+        \AND%
+        \kern 0.25 cm%
+        \mbox{\hrefWithoutArrow{mailto:[你的邮箱]}{\textcolor{tealColor}{\footnotesize\faEnvelope[regular]}\hspace*{0.13cm}[你的邮箱]}}%
+        \kern 0.25 cm%
+        \AND%
+        \kern 0.25 cm%
+        \mbox{\hrefWithoutArrow{tel:[你的电话]}{\textcolor{goldColor}{\footnotesize\faPhone*}\hspace*{0.13cm}[你的电话]}}%
+        \kern 0.25 cm%
+        \AND%
+        \kern 0.25 cm%
+        \mbox{\hrefWithoutArrow{https://github.com/[你的GitHub用户名]}{\textcolor{purpleColor}{\footnotesize\faGithub}\hspace*{0.13cm}github.com/[你的GitHub用户名]}}%
+    \end{header}
+
+    \vspace{0.3 cm - 0.3 cm}
+
+
+    \section{教育背景}
+
+        \begin{threecolentry}{\textbf{本科}}{
+            2023.09 -- 2027.06（预计）
+        }
+            \textbf{[你的大学名称]}，[你的专业名称]
+            \begin{highlights}
+                \item \textbf{GPA:} [X.X/4.0] | 排名: \textbf{[X/N（前 X\%）]} % 可选
+                \item \textbf{英语水平:} CET-4 \textbf{[成绩]}, CET-6 \textbf{[成绩]} % 可选
+                \item \textbf{核心课程:}\par\vspace{0.05cm}
+                \noindent
+                \begin{minipage}[t]{0.47\linewidth}
+                    \textbf{计算机 / 人工智能课程:}
+                    \begin{itemize}[topsep=0.05cm, parsep=0pt, itemsep=0pt, leftmargin=1.1em]
+                        \item 自然语言处理 \hfill \textbf{A}
+                        \item 机器学习导论 \hfill \textbf{A}
+                        \item 人工智能 I \hfill \textbf{A}
+                        \item 计算机编程 \hfill \textbf{A+}
+                        \item 信息科学与技术导论 \hfill \textbf{A}
+                    \end{itemize}
+                \end{minipage}\hfill
+                \begin{minipage}[t]{0.47\linewidth}
+                    \textbf{数学基础:}
+                    \begin{itemize}[topsep=0.05cm, parsep=0pt, itemsep=0pt, leftmargin=1.1em]
+                        \item 凸优化 \hfill \textbf{A+}
+                        \item 概率论与数理统计 \hfill \textbf{A}
+                        \item 线性代数与应用 \hfill \textbf{A}
+                        \item 微积分 I \hfill \textbf{A}
+                        \item 微积分 II \hfill \textbf{A-}
+                    \end{itemize}
+                \end{minipage}
+            \end{highlights}
+        \end{threecolentry}
+
+
+
+    \section{科研经历}
+
+        \begin{twocolentry}{
+            [你的研究地点]
+
+        [开始日期] -- [结束日期]
+        }
+            \textbf{[你的研究项目标题]} \\
+            {\small\textcolor{softGray}{指导教师: [指导教师姓名]}} \hfill \textit{[作者身份], [发表情况]}
+            \begin{highlights}
+                \item \textbf{背景:} [请在此处描述研究背景和问题陈述]
+                \item \textbf{方法:} [请在此处描述你的研究方法和技术方案]
+                \begin{itemize}[topsep=0.05cm, parsep=0pt, itemsep=0pt, leftmargin=*]
+                    \item {[方法要点 1]}
+                    \item {[方法要点 2]}
+                    \item {[方法要点 3]}
+                \end{itemize}
+                \item \textbf{贡献:}
+                \begin{itemize}[topsep=0.05cm, parsep=0pt, itemsep=0pt, leftmargin=*]
+                    \item {[研究贡献 1]}
+                    \item {[研究贡献 2]}
+                    \item {[研究贡献 3]}
+                \end{itemize}
+            \end{highlights}
+        \end{twocolentry}
+
+        \vspace{0.2 cm}
+
+        \begin{twocolentry}{
+            [你的研究地点]
+
+        [开始日期] -- [结束日期]
+        }
+            \textbf{[你的研究项目标题]} \\
+            {\small\textcolor{softGray}{指导教师: [指导教师姓名]}} \hfill \textit{[作者身份]}
+            \begin{highlights}
+                \item \textbf{背景:} [请在此处描述研究背景和问题陈述]
+                \item \textbf{方法:} [请在此处描述你的研究方法和技术方案]
+                \begin{itemize}[topsep=0.05cm, parsep=0pt, itemsep=0pt, leftmargin=*]
+                    \item {[方法要点 1]}
+                    \item {[方法要点 2]}
+                \end{itemize}
+                \item \textbf{贡献:}
+                \begin{itemize}[topsep=0.05cm, parsep=0pt, itemsep=0pt, leftmargin=*]
+                    \item {[研究贡献 1]}
+                    \item {[研究贡献 2]}
+                    \item {[研究贡献 3]}
+                \end{itemize}
+            \end{highlights}
+        \end{twocolentry}
+
+        \vspace{0.2 cm}
+
+        \begin{twocolentry}{
+            [你的研究地点]
+
+        [开始日期] -- [结束日期]
+        }
+            \textbf{[你的项目标题]} \\
+            {\small\textcolor{softGray}{[实验室 / 组织名称]，指导教师: [指导教师姓名]}}
+            \begin{highlights}
+                \item \textbf{工作:} [请在此处描述你的项目工作内容和贡献]
+            \end{highlights}
+        \end{twocolentry}
+
+
+    \section{项目经历}
+
+        \begin{twocolentry}{
+            \href{[项目网址]}{[项目网址]}
+        }
+            \textbf{[项目名称]} \\
+            {\small\textcolor{softGray}{[项目描述]}}
+            \begin{highlights}
+                \item \textbf{工作:} [请在此处描述你的项目工作内容和贡献]
+            \end{highlights}
+        \end{twocolentry}
+
+
+    \section{荣誉奖项与教学经历}
+
+        \begin{onecolentry}
+            \begin{highlightsforbulletentries}
+                \item \textbf{[奖项或荣誉名称]}, [年份] % 可选
+                \item \textbf{[课程名称]} 助教，[大学名称]，[学期 / 年份] % 可选
+                \item {[职位 / 角色]}，[社团 / 组织名称]，[年份] % 可选
+                \item {[其他荣誉或经历]} % 可选
+            \end{highlightsforbulletentries}
+        \end{onecolentry}
+
+
+
+    \section{专业技能}
+
+        \begin{onecolentry}
+            \textbf{编程语言与工具:} Python (PyTorch, HuggingFace Transformers), C/C++, Linux, Git, LaTeX
+        \end{onecolentry}
+
+        \vspace{0.2 cm}
+
+        \begin{onecolentry}
+            \textbf{研究兴趣:} NLP, LLM Reasoning (Chain-of-Thought), Transformer Architecture
+        \end{onecolentry}
+
+
+\end{document}

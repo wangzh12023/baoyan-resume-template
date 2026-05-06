@@ -15,3 +15,7 @@
 
 
 - 使用`make clean`命令清楚除编译生成的中间文件。注：windows用户请在git bash中使用该命令。请勿在cmd或者powershell中使用该命令。
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
